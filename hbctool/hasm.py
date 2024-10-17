@@ -129,21 +129,34 @@ def read_func(func_asms, i):
 
 
 def load(path):
-    assert os.path.exists(path), f"{path} does not exists."
-    assert os.path.exists(f"{path}/metadata.json"), f"metadata.json not found."
-    assert os.path.exists(f"{path}/string.json"), f"string.json not found."
-    assert os.path.exists(f"{path}/instruction.hasm"), f"instruction.hasm not found."
+    print(f"Attempting to load from path: {path}")
+    
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"The directory {path} does not exist.")
+    
+    metadata_path = os.path.join(path, "metadata.json")
+    string_path = os.path.join(path, "string.json")
+    instruction_path = os.path.join(path, "instruction.hasm")
+    
+        
+    print(f"Looking for metadata.json at: {metadata_path}")
+    print(f"Looking for string.json at: {string_path}")
+    print(f"Looking for instruction.hasm at: {instruction_path}")
+    
+    for file_path in [metadata_path, string_path, instruction_path]:
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Required file not found: {file_path}")
+    
+    print("All required files found. Proceeding with loading...")
 
-    f = open(f"{path}/metadata.json", "r")
-    hbc = hbcl.loado(json.load(f))
-    f.close()
+    with open(metadata_path, "r") as f:
+        hbc = hbcl.loado(json.load(f))
 
-    f = open(f"{path}/instruction.hasm", "r")
-    hasm_content = f.read()
-    f.close()
+    with open(instruction_path, "r") as f:
+        hasm_content = f.read()
 
-    f = open(f"{path}/string.json", "r")
-    strings = json.load(f)
+    with open(string_path, "r") as f:
+        strings = json.load(f)
     f.close()
 
     for string in strings:
